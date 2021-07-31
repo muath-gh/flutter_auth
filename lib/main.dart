@@ -5,8 +5,14 @@ import 'package:auth_playground/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-void main() {
+String accessToken = null;
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  accessToken = await storage.read(key: "access_token");
+
   runApp(MultiProvider(
     providers: providers,
     child: MainPage(),
@@ -22,8 +28,13 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+
     return MaterialApp(
-      home: authProvider.isLoggedIn ? HomeScreen() : LoginScreen(),
+      home: accessToken != null
+          ? HomeScreen()
+          : authProvider.isLoggedIn
+              ? HomeScreen()
+              : LoginScreen(),
     );
   }
 }
